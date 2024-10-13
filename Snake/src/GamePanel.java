@@ -56,6 +56,9 @@ public class GamePanel extends JPanel implements ActionListener {
 	/** A flag to check for victory */
 	boolean victory;
 	
+	/** A flag to check if the game has started */
+	boolean started;
+	
 	/** A flag to check if the game is still runnong */
 	boolean running;
 	
@@ -66,11 +69,12 @@ public class GamePanel extends JPanel implements ActionListener {
 	Random random;
 	
 	GamePanel() {
+		started = false;
+		running = false;
 		this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
 		this.setBackground(Color.black);
 		this.setFocusable(true);
 		this.addKeyListener(new SnakeKey());
-		startGame();
 	}
 	
 	public void startGame() {
@@ -99,7 +103,11 @@ public class GamePanel extends JPanel implements ActionListener {
 	
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		draw(g);
+		 if (!started) {
+		        startScreen(g);
+		    } else {
+		        draw(g);
+		    }
 	}
 	
 	/**
@@ -108,7 +116,6 @@ public class GamePanel extends JPanel implements ActionListener {
 	 */
 	public void draw(Graphics g) {
 		if (running) {
-			
 			// Draw the apple
 			g.setColor(Color.red);
 			g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE);
@@ -146,7 +153,6 @@ public class GamePanel extends JPanel implements ActionListener {
 	    }
 		
 	}
-	
 	
 	
 	public void checkApple() {
@@ -208,6 +214,16 @@ public class GamePanel extends JPanel implements ActionListener {
 		}
 	}
 	
+	public void startScreen(Graphics g) {
+		g.setColor(Color.pink);
+		g.setFont(new Font("Ink Free", Font.BOLD, 40));
+		FontMetrics title = getFontMetrics(g.getFont());
+		g.drawString("Snake Game", (SCREEN_WIDTH - title.stringWidth("Snake Game")) / 2, SCREEN_HEIGHT / 2);
+		
+		 g.setFont(new Font("Ink Free", Font.BOLD, 20));
+	    FontMetrics start = getFontMetrics(g.getFont());
+	    g.drawString("Press ENTER to Start", (SCREEN_WIDTH - start.stringWidth("Press ENTER to Start")) / 2, SCREEN_HEIGHT / 2 + 50);
+	}
 	
 	public void gameOverScreen(Graphics g) {
 		//Game Over text
@@ -220,13 +236,11 @@ public class GamePanel extends JPanel implements ActionListener {
 		
 		//Displaying the score
 		displayScore(g);
-		
-		
 	}
 	
 	public void victoryScreen(Graphics g) {
 	    g.setColor(Color.green);
-	    g.setFont(new Font("Ink Free", Font.BOLD, 75));
+	    g.setFont(new Font("Ink Free", Font.BOLD, 40));
 	    FontMetrics metrics = getFontMetrics(g.getFont());
 	    g.drawString("Victory!", (SCREEN_WIDTH - metrics.stringWidth("Victory!")) / 2, SCREEN_HEIGHT / 2);
 	    //Option for restarting the game
@@ -253,7 +267,6 @@ public class GamePanel extends JPanel implements ActionListener {
 	}
 	
 	
-	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (running) { 
@@ -272,33 +285,37 @@ public class GamePanel extends JPanel implements ActionListener {
 	public class SnakeKey extends KeyAdapter {
 		@Override
 		public void keyPressed(KeyEvent k) {
-			switch(k.getKeyCode()) {
-			case KeyEvent.VK_LEFT:
-				if (direction != 'R') {
-					direction = 'L';
-				}
-				break;
-			case KeyEvent.VK_RIGHT:
-				if (direction != 'L') {
-					direction = 'R';
-				}
-				break;
-			case KeyEvent.VK_UP:
-				if (direction != 'D') {
-					direction = 'U';
-				}
-				break;
-			case KeyEvent.VK_DOWN:
-				if (direction != 'U') {
-					direction = 'D';
-				}
-				break;
-			case KeyEvent.VK_SPACE:
-				if (!running) {
-					startGame(); //Restart the game;
-				}
-				break;
-			}
+	        if (!started) { //starting the game
+	            if (k.getKeyCode() == KeyEvent.VK_ENTER) {
+	                started = true;
+	                startGame();
+	            }
+	        } else if (running) { //while running
+	            switch(k.getKeyCode()) {
+	                case KeyEvent.VK_LEFT:
+	                    if (direction != 'R') {
+	                        direction = 'L';
+	                    }
+	                    break;
+	                case KeyEvent.VK_RIGHT:
+	                    if (direction != 'L') {
+	                        direction = 'R';
+	                    }
+	                    break;
+	                case KeyEvent.VK_UP:
+	                    if (direction != 'D') {
+	                        direction = 'U';
+	                    }
+	                    break;
+	                case KeyEvent.VK_DOWN:
+	                    if (direction != 'U') {
+	                        direction = 'D';
+	                    }
+	                    break;
+	            }
+	        } else if (k.getKeyCode() == KeyEvent.VK_SPACE) { //restart
+	            startGame();
+	        }
 		}
 	}
 
